@@ -1,0 +1,6 @@
+{
+  "watch": ["pages", "lib", "components"],
+  "ext": "js,json",
+  "ignore": [".next", "node_modules", "uploads", "database"],
+  "delay": 1000
+}
