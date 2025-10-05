@@ -10,14 +10,14 @@ A minimal web application that allows users to create folders, upload documents,
 - **Folder-Scoped Chat**: Ask questions that only use documents from the current folder
 - **Citations**: Every answer includes document name and page references
 - **Retrieved Chunks**: Toggle to view the actual text chunks used for answers
-
+- **Export chat **:Export chat + sources to Markdown/PDF.
 ## Tech Stack
 
 - **Frontend**: Next.js, React, JavaScript
 - **Backend**: Next.js API routes, Node.js
 - **Database**: SQLite for metadata
 - **Vector Store**: ChromaDB for embeddings
-- **LLM**: OpenAI GPT-3.5-turbo
+- **LLM**: Gemini Api
 - **File Processing**: pdf-parse for PDFs
 
 ## Setup Instructions
@@ -25,7 +25,7 @@ A minimal web application that allows users to create folders, upload documents,
 ### Prerequisites
 
 1. Node.js 18+ installed
-2. OpenAI API key
+2. Google Gemini API key
 3. ChromaDB running locally
 
 ### Installation
