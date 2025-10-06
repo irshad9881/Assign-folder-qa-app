@@ -71,8 +71,8 @@ export default async function handler(req, res) {
 
       const documentIds = searchResults.metadatas?.[0]?.map(m => m?.documentId) || [];
       const documents = await dbAll(
-        `SELECT id, name FROM documents WHERE id IN (${documentIds.map(() => '?').join(',')})`,
-        documentIds
+        `SELECT id, name, folder_id FROM documents WHERE id IN (${documentIds.map(() => '?').join(',')}) AND folder_id = ?`,
+        [...documentIds, folderId]
       );
       
       const docMap = documents.reduce((acc, doc) => {
@@ -87,26 +87,25 @@ export default async function handler(req, res) {
         folderId: folderId // Add folder ID for isolation check
       }));
       
-      // Strict folder isolation: Verify all chunks belong to current folder
-      const invalidChunks = chunks.filter(chunk => {
-        const doc = documents.find(d => d.id === chunk.metadata.documentId);
-        return doc && doc.folder_id !== folderId;
+      // Filter chunks to only include those from valid documents in this folder
+      const validChunks = chunks.filter(chunk => {
+        return documents.some(d => d.id === chunk.metadata.documentId);
       });
       
-      if (invalidChunks.length > 0) {
-        console.error('FOLDER ISOLATION VIOLATION: Cross-folder chunks detected!');
+      if (validChunks.length === 0) {
+        console.log(`Searching in folder ${folderId}, collection has ${searchResults.documents[0].length} documents`);
         return res.status(200).json({
-          answer: "I don't know. Security error: folder isolation violation detected.",
+          answer: "I don't know. No relevant information found in this folder.",
           citations: [],
           chunks: []
         });
       }
 
-      const result = await generateAnswer(query, chunks, folderId);
+      const result = await generateAnswer(query, validChunks, folderId);
 
       res.status(200).json({
         ...result,
-        chunks: chunks.map(chunk => ({
+        chunks: validChunks.map(chunk => ({
           content: chunk.content,
           documentName: chunk.document?.name || 'Unknown',
           page: chunk.metadata.page
